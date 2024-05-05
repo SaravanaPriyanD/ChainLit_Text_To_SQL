@@ -1,18 +1,12 @@
 import os
 from openai import AsyncOpenAI
+
+
 from chainlit.playground.providers.openai import ChatOpenAI
-from dotenv import load_dotenv
 import chainlit as cl
 
-print("all_ok!")
-
-load_dotenv() 
-
 OEPNAI_API_KEY=os.getenv("OPENAI_API_KEY")
-
-client=AsyncOpenAI(api_key=OEPNAI_API_KEY)
-
-print("client has created")
+client = AsyncOpenAI(api_key="OEPNAI_API_KEY")
 
 template = """SQL tables (and columns):
 * Customers(customer_id, signup_date)
@@ -30,9 +24,7 @@ settings = {
     "frequency_penalty": 0,
     "presence_penalty": 0,
     "stop": ["```"],
-
 }
-
 
 @cl.step(type="llm", root=True, language="sql")
 async def text_to_sql(text: str):
@@ -48,11 +40,10 @@ async def text_to_sql(text: str):
         settings=settings,
         variables={"input": text},
     )
-    print(generation.messages)
 
     # Call OpenAI
     stream = await client.chat.completions.create(
-        messages=[m['content'].to_openai() for m in generation.messages], stream=True, **settings
+        messages=[m.to_openai() for m in generation.messages], stream=True, **settings
     )
 
     current_step = cl.context.current_step
